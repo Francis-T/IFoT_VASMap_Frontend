@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='js/ol.css') }}" type="text/css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" type="text/css">
+    <style>
+      .map {
+        height: 400px;
+        width: 600px;
+        display: inline-block;
+      }
+      .side-pane {
+        display: inline-block;
+        vertical-align: top;
+      }
+      .marker {
+          width: 65px;
+          height: 26px;
+          // border: 1px solid #088;
+          border-radius: 10px;
+          background-color: #FFF3;
+          text-align: center;
+          opacity: 1.0;
+      }
+      .marker-text {
+          display: inline-block;
+          color: #000F;
+      }
+      #timing_chart {
+          width: 600px;
+          height: 400px;
+      }
+      button {
+          display: block;
+      }
+    </style>
+    <script src="{{ url_for('static', filename='js/ol.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.3.1.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vasmap.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/chroma.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/Chart.bundle.js') }}"></script>
+    <title>Vehicle Average Speed Map Test</title>
+  </head>
+  <body>
+    <div class="container">
+        <ul class="row nav nav-tabs">
+              <li class="nav-item active">
+                  <a class="nav-link active" data-toggle="tab" href="#mappane">Map</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" data-toggle="tab" href="#timingpane">Timing</a>
+              </li>
+        </ul>
+        <div class="tab-content">
+            <div id="mappane" class="row tab-pane active">
+                <div id="map" class="map col-sm-9"></div>
+                <div id="tbl_results_wrapper" class="side-pane col-sm-3">
+                    <table id="tbl_results" class="table">
+                        <thead id="tbl_results_head">
+                            <th>RSU ID</th>
+                            <th>Speed</th>
+                        </thead>
+                        <tbody id="tbl_results_body">
+                        </tbody>
+                    </table>
+                    <label for="nmb_split_count" style="display: none;">Split Count</label>
+                    <input type="number" id="nmb_split_count" min=1 max=20 style="display: none;">
+                    <button id="btn_query_speeds" onclick="requestAverageSpeeds()">Get Average Speeds</button>
+                </div>
+            </div>
+            <div id="timingpane" class="row tab-pane fade">
+                <canvas id="timing_chart" class="col-sm-8"></canvas>
+                <div id="tbl_exec_times_wrapper" class="col-sm-4 side-pane">
+                    <div id="summ_exec_times"></div>
+                    <table id="tbl_exec_times" class="table">
+                        <thead id="tbl_exec_times_head">
+                            <th>Operation</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Duration</th>
+                        </thead>
+                        <tbody id="tbl_exec_times_body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div>Selected Points: <div id="rsu_selection" style="display: inline;"></div></div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        map_params = {
+            marker_path : "{{url_for('static', filename='rsu.png')}}",
+        };
+        createMap(map_params);
+    </script>
+  </body>
+</html>
+
