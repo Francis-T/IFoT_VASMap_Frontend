@@ -1,12 +1,13 @@
 import requests
 import json
 import time
+import os
+
 from flask import render_template, request
 from ifot_vasmap import app
 
-# SVC_WORKER_IP = '163.221.68.242'
-SVC_WORKER_IP = 'pi-3'
-SVC_WORKER_PORT = 5001
+SVC_WORKER_IP = os.environ['IFOT_API_HOST']
+SVC_WORKER_PORT = os.environ['IFOT_API_PORT']
 GET_AVE_SPD_API_URL = 'api/vas/get_average_speeds'
 TASK_INFO_API_URL = 'api/task/{}/{}'
 EXEC_TIME_INFO_API_URL = 'api/get_exec_time/{}'
