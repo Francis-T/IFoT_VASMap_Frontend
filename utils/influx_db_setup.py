@@ -3,32 +3,7 @@ import json
 import time
 import random
 
-RSU_LIST = [
-    { "sw_id": "SW_1", "id": "RSU_1",  "lon" : 135.728923, "lat" : 34.729994, 
-        "next" : [ "END", "RSU_2" ] },
-    { "sw_id": "SW_1", "id": "RSU_2",  "lon" : 135.729658, "lat" : 34.729951,
-        "next" : ["RSU_1", "RSU_3"] }, 
-    { "sw_id": "SW_1", "id": "RSU_3",  "lon" : 135.730424, "lat" : 34.729924, 
-        "next" : ["RSU_2", "RSU_4", "RSU_9", "RSU_10"] }, 
-    { "sw_id": "SW_1", "id": "RSU_4",  "lon" : 135.731765, "lat" : 34.729814,
-        "next" : ["RSU_5", "RSU_9", "RSU_3", "RSU_10"] }, 
-    { "sw_id": "SW_1", "id": "RSU_5",  "lon" : 135.732436, "lat" : 34.729779,
-        "next" : ["RSU_4", "RSU_6"] }, 
-    { "sw_id": "SW_1", "id": "RSU_6",  "lon" : 135.733042, "lat" : 34.729726,
-        "next" : ["RSU_5", "END"] }, 
-    { "sw_id": "SW_2", "id": "RSU_7",  "lon" : 135.731467, "lat" : 34.731135,
-        "next" : ["RSU_8", "END"] }, 
-    { "sw_id": "SW_2", "id": "RSU_8",  "lon" : 135.731408, "lat" : 34.730840,
-        "next" : ["RSU_7", "RSU_9"] }, 
-    { "sw_id": "SW_2", "id": "RSU_9",  "lon" : 135.731322, "lat" : 34.730439,
-        "next" : ["RSU_8", "RSU_3", "RSU_4", "RSU_10"] }, 
-    { "sw_id": "SW_2", "id": "RSU_10", "lon" : 135.731065, "lat" : 34.729346,
-        "next" : ["RSU_11", "RSU_3", "RSU_4", "RSU_9"] }, 
-    { "sw_id": "SW_2", "id": "RSU_11", "lon" : 135.730706, "lat" : 34.729046,
-        "next" : ["RSU_10", "RSU_12"] }, 
-    { "sw_id": "SW_2", "id": "RSU_12", "lon" : 135.730035, "lat" : 34.729020,
-        "next" : ["RSU_11", "END"] }, 
-]
+RSU_LIST = []
 
 VALID_STARTS = ["RSU"]
 FREQUENCY = 0.100
@@ -49,7 +24,7 @@ class Car():
     def run(self):
         rsu_idx = random.randint(0, len(RSU_LIST))
         rsu = RSU_LIST[rsu_idx - 1]
-        self.rsu_id = rsu['id']
+        self.rsu_id = rsu['rsu_id']
         self.lat = rsu['lat']
         self.lon = rsu['lon']
         self.speed = 10.0 + (random.random() * 90.0)
@@ -182,13 +157,19 @@ if not 'VASMAP' in db_list:
 # 
 # resp = db.drop()
 # resp = db.get_databases()
+# print(resp)
 
-# for i in range(0, 1000):
-#     car = Car().run()
-#     resp = db.write(car.id, car.rsu_id, car.speed, car.lat, car.lon, car.direction)
+with open("rsu_info.json","r") as rsu_json_file:
+    data = json.load(rsu_json_file)
+    RSU_LIST = data['rsu_list']
 
-resp = db.query("*", "rsu_data", start=0, end=int(time.time()))
-print(resp)
+for i in range(0, 1000):
+    car = Car().run()
+    print("{}, {}, {}, {}, {}, {}".format(car.id, car.rsu_id, car.speed, car.lat, car.lon, car.direction))
+    resp = db.write(car.id, car.rsu_id, car.speed, car.lat, car.lon, car.direction)
+
+# resp = db.query("*", "rsu_data", start=0, end=int(time.time()))
+# print(resp)
 
 # resp = db.drop()
 # resp = db.get_databases()

@@ -4,15 +4,22 @@ import time
 from flask import render_template, request
 from ifot_vasmap import app
 
-SVC_WORKER_IP = '163.221.68.242'
+# SVC_WORKER_IP = '163.221.68.242'
+SVC_WORKER_IP = 'pi-3'
 SVC_WORKER_PORT = 5001
 GET_AVE_SPD_API_URL = 'api/vas/get_average_speeds'
 TASK_INFO_API_URL = 'api/task/{}/{}'
 EXEC_TIME_INFO_API_URL = 'api/get_exec_time/{}'
+RSU_LIST_INFO_API_URL = 'api/vas/request_rsu_list'
 
 @app.route('/')
 def index():
     return render_template("vasmap-test.html")
+
+@app.route('/get_rsu_list', methods=['GET'])
+def get_rsu_list():
+    resp = request_rsu_list()
+    return resp.text, 200
 
 @app.route('/get_exec_time/<unique_id>', methods=['GET'])
 def get_exec_time(unique_id):
@@ -101,4 +108,8 @@ def request_task_info(task_id, task_queue):
 def request_exec_time_info(unique_id):
     exec_time_info_url = EXEC_TIME_INFO_API_URL.format(unique_id)
     return send_request(exec_time_info_url, SVC_WORKER_IP, SVC_WORKER_PORT)
+
+def request_rsu_list():
+    return send_request(RSU_LIST_INFO_API_URL, SVC_WORKER_IP, SVC_WORKER_PORT)
+
 

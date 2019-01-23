@@ -1,26 +1,27 @@
-RSU_DATA = [
-  [
-      { sw_id: "SW_1", id: "RSU_1", lon : 135.728923, lat : 34.729994 },
-      { sw_id: "SW_1", id: "RSU_2", lon : 135.729658, lat : 34.729951 }, 
-      { sw_id: "SW_1", id: "RSU_3", lon : 135.730424, lat : 34.729924 }, 
-      { sw_id: "SW_1", id: "RSU_4", lon : 135.731765, lat : 34.729814 }, 
-      { sw_id: "SW_1", id: "RSU_5", lon : 135.732436, lat : 34.729779 }, 
-      { sw_id: "SW_1", id: "RSU_6", lon : 135.733042, lat : 34.729726 }
-  ],
-  [
-      { sw_id: "SW_2", id: "RSU_7", lon : 135.731467, lat : 34.731135 },
-      { sw_id: "SW_2", id: "RSU_8", lon : 135.731408, lat : 34.730840 },
-      { sw_id: "SW_2", id: "RSU_9", lon : 135.731322, lat : 34.730439 },
-      { sw_id: "SW_2", id: "RSU_10", lon : 135.731065, lat : 34.729346 },
-      { sw_id: "SW_2", id: "RSU_11", lon : 135.730706, lat : 34.729046 },
-      { sw_id: "SW_2", id: "RSU_12", lon : 135.730035, lat : 34.729020 }
-  ],
-];
+// RSU_DATA = [
+//   [
+//       { sw_id: "SW_1", id: "RSU_1", lon : 135.728923, lat : 34.729994 },
+//       { sw_id: "SW_1", id: "RSU_2", lon : 135.729658, lat : 34.729951 }, 
+//       { sw_id: "SW_1", id: "RSU_3", lon : 135.730424, lat : 34.729924 }, 
+//       { sw_id: "SW_1", id: "RSU_4", lon : 135.731765, lat : 34.729814 }, 
+//       { sw_id: "SW_1", id: "RSU_5", lon : 135.732436, lat : 34.729779 }, 
+//       { sw_id: "SW_1", id: "RSU_6", lon : 135.733042, lat : 34.729726 }
+//   ],
+//   [
+//       { sw_id: "SW_2", id: "RSU_7", lon : 135.731467, lat : 34.731135 },
+//       { sw_id: "SW_2", id: "RSU_8", lon : 135.731408, lat : 34.730840 },
+//       { sw_id: "SW_2", id: "RSU_9", lon : 135.731322, lat : 34.730439 },
+//       { sw_id: "SW_2", id: "RSU_10", lon : 135.731065, lat : 34.729346 },
+//       { sw_id: "SW_2", id: "RSU_11", lon : 135.730706, lat : 34.729046 },
+//       { sw_id: "SW_2", id: "RSU_12", lon : 135.730035, lat : 34.729020 }
+//   ],
+// ];
 
 var selected_rsu_list = [];
 var map = null;
 var overlays = []
 var global_chart_data = {};
+var RSU_DATA = [];
 
 function getRoadColor(idx) {
   var colors = [
@@ -34,28 +35,23 @@ function getRoadColor(idx) {
 function createMap(params) {
     var markers = []
 
-    let roadIdx = 0
-    for (var road of RSU_DATA) {
-        for (var pos of road) {
-            let m = new ol.Feature({
-              geometry: new ol.geom.Point( ol.proj.fromLonLat([pos.lon, pos.lat])), 
-              name : pos.id,
-              sw_id : pos.sw_id,
-              lon : pos.lon,
-              lat : pos.lat,
-            });
+    for (var rsu of RSU_DATA) {
+        let m = new ol.Feature({
+          geometry: new ol.geom.Point( ol.proj.fromLonLat([rsu.lon, rsu.lat])), 
+          name : rsu.rsu_id,
+          lon : rsu.lon,
+          lat : rsu.lat,
+        });
 
-            m.setStyle(new ol.style.Style({
-                image: new ol.style.Icon(({
-                    crossOrigin: 'anonymous',
-                    src: params.marker_path,
-                    color: getRoadColor(roadIdx),
-                }))
-            }));
+        m.setStyle(new ol.style.Style({
+            image: new ol.style.Icon(({
+                crossOrigin: 'anonymous',
+                src: params.marker_path,
+                color: getRoadColor(0),
+            }))
+        }));
 
-            markers.push(m)
-        }
-        roadIdx += 1;
+        markers.push(m)
     }
 
     var vectorSource = new ol.source.Vector({ features : markers });
@@ -70,8 +66,9 @@ function createMap(params) {
           }),
         ],
         view: new ol.View({
-          center: ol.proj.fromLonLat([135.731195, 34.729879]),
-          zoom: 17
+          //center: ol.proj.fromLonLat([135.731195, 34.729879]),
+          center: ol.proj.fromLonLat([-86.7867889, 36.1655724]),
+          zoom: 12
         }),
         interactions: ol.interaction.defaults({
           doubleClickZoom :false,
@@ -149,12 +146,10 @@ function logList() {
 
 function addRSUOverlay(rsu_id, data, max_data, min_data) {
     target_rsu_info = null;
-    for (rsu_sub_list of RSU_DATA) {
-        for (rsu_info of rsu_sub_list) {
-            if (rsu_info.id == rsu_id) {
-                target_rsu_info = rsu_info;
-                break;
-            }
+    for (rsu_info of RSU_DATA) {
+        if (rsu_info.rsu_id == rsu_id) {
+            target_rsu_info = rsu_info;
+            break;
         }
     }
 
@@ -417,6 +412,19 @@ function requestExecTimeData(unique_id) {
         },
     });
     return;
+}
+
+function loadMapData(map_params) {
+    $.ajax({
+        url : "get_rsu_list",
+        method: "GET",
+        success : function (data) {
+            RSU_DATA = JSON.parse(data);
+            console.log("Creating the map");
+            createMap(map_params);
+            return;
+        },
+    });
 }
 
 
